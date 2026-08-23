@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>ZomIA Briefing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+        html, body { width: 100%; height: 100%; }
+        body {
+            background: #040914;
+            color: #f4f8ff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 16px;
+            -webkit-touch-callout: none;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: #0a1220;
+            border-bottom: 1px solid #1b2b42;
+            padding: 10px 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .logo {
+            height: 30px;
+            width: auto;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 16px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .progress-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #1b2b42;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2da8ff, #71e5ff);
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+
+        .autosave-indicator {
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            background: #62e6ae;
+            color: #040914;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            display: none;
+            z-index: 1000;
+        }
+
+        .autosave-indicator.show {
+            display: block;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 12px;
+            padding-bottom: 140px;
+        }
+
+        .section {
+            background: #0d1728;
+            border: 1px solid #1b2b42;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #71e5ff;
+            margin-bottom: 10px;
+        }
+
+        .field {
+            margin-bottom: 10px;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #f4f8ff;
+        }
+
+        .required {
+            color: #ff7887;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 9px;
+            background: #0a1220;
+            border: 1px solid #1b2b42;
+            border-radius: 6px;
+            color: #f4f8ff;
+            font-size: 16px;
+            font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #2da8ff;
+            box-shadow: 0 0 0 2px rgba(45, 168, 255, 0.2);
+        }
+
+        textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%2391a1b8' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 28px;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .choice {
+            position: relative;
+        }
+
+        .choice input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .choice label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px;
+            background: #0a1220;
+            border: 1px solid #1b2b42;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 400;
+            margin-bottom: 0;
+            transition: all 0.15s ease;
+        }
+
+        .choice label::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1b2b42;
+            border-radius: 3px;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+        }
+
+        .choice input[type="checkbox"]:checked + label {
+            background: rgba(45, 168, 255, 0.15);
+            border-color: #2da8ff;
+        }
+
+        .choice input[type="checkbox"]:checked + label::before {
+            background: #2da8ff;
+            border-color: #2da8ff;
+            content: '✓';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #040914;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .button-group {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #040914;
+            border-top: 1px solid #1b2b42;
+            display: flex;
+            gap: 6px;
+            padding: 10px;
+            z-index: 998;
+        }
+
+        button {
+            flex: 1;
+            padding: 11px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            -webkit-appearance: none;
+            appearance: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2da8ff, #71e5ff);
+            color: #040914;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+
+        .btn-secondary {
+            background: #0a1220;
+            color: #71e5ff;
+            border: 1px solid #1b2b42;
+        }
+
+        .btn-secondary:active {
+            background: #0d1728;
+        }
+
+        .btn-danger {
+            color: #ff7887;
+            border-color: #ff7887;
+        }
+
+        .status-message {
+            position: fixed;
+            bottom: 95px;
+            left: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 12px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .status-message.show {
+            display: block;
+        }
+
+        .status-message.success {
+            background: #62e6ae;
+            color: #040914;
+        }
+
+        .status-message.error {
+            background: #ff7887;
+            color: white;
+        }
+
+        .status-message.info {
+            background: #2da8ff;
+            color: white;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: flex-end;
+            z-index: 2000;
+            padding: 10px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0d1728;
+            border: 1px solid #1b2b42;
+            border-radius: 12px 12px 0 0;
+            width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .modal-content h2 {
+            color: #71e5ff;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .modal-item {
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .modal-item strong {
+            display: block;
+            color: #71e5ff;
+            font-size: 11px;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <img class="logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAImBKYDASIAAhEBAxEB/8QAHgAAAQQDAQEBAAAAAAAAAAAAAgABAwQFBgcICQr/xABoEAABAgUCAwUEBAgHCggKBwkBAgMABAURIQYxBxJBCBNRYXEUIoGRMkKhsQkVI1JicsHRFjNDgpKi0hckNFNjk6OywvAYJURzg5Sz4RkmNkVkdYSVpMM1RlRVZXS00/EnKFaFN0dm/8QAHAEAAgMBAQEBAAAAAAAAAAAAAQIAAwQFBgcI/8QASBEAAgEDAwIDBQUGBAQEBAcAAAECAwQRBRIhMUEGE1EUIjNBYXGRMkKhsQkVwtHhBzNi8CQlY3IWNEPCJjWSsjZEU3ODovH/2gAMAwEAAhEDEQA/APl3ygiB8Ye4tAjN41S6lDHFgLQ8D6iECbw8eA9giSb5hiPdzDk5hjv5QkuRFwD0g035b9YHpbzgxcRdHoN2EAd4RJ2IhZJhEWEVY5EyIG4tDptc2hkgZv4QQ5QMRfHGAsa4G8L3b3G8MLWNxCBsfSE7ij9d4L3r3IsIC9zBnEM8BfIgBzZhGwNh1hr2NxDi28Kuog9jCubWhXxiBAv1i3sHqEknaHSMkwyL2MOL3yIRcsA5/RhzzYNobF4M36Q76EYknxhzbpDAADxJhgDtcREsipDi4STaCHKMnrDIBAzBGxtiLcJILDG1xBAG1oScDaHub4EMkVNgm94cWEJSTfMOm5vj4w2APoOLqNxBAG9oSSCQbbRIbEYFoiQjHAFxcwQABuIFIurMFkQ6QAwCLm+8Mea/lDA+7a8EkE4MHaRywxA2PlDgi5huW20MSekRxwibxwBm0NdO8OcC8Mm18CIoi7si6DP2QSSB0gh4Q6U5+jiHawuAvkEZJguQJGN4L3bw9wcWhUiIZLar3IxDiwxDgEecOEZ23gtBbCHNawhEEYhkpIvmFfOYkVyKhyBvEiFKt6wHhBlwAWAsY0LoSXQQSm+IIGybWMRi4N7wxKhm5tASTYqZKn3t4I2J92/nEVyrYw9yNzBaCyUbXJhrqvcHEBzKAtvEt7JECC5Ahve3ViFcAXO8Cq+wMJIznrFrRMhoOMwRCSBmAFuY5xBZ6QYrkA+BiDSSIbHLzWzDp97yxEqCthe7DJFwYa4vaCGBDUwoWBiHSfCAA5jDpSQMwZcglwEkpNxBem0RgFJPWCTcfGLIrgiZLcEDl3hyoGwIzAI5Uk3iW6Tm0VSFkAM7whcZhwRtaCO0PFZQV0BuT70OLpNzCIsmBBN/hAkmwLqF6bHeGFhkHIMMVm8OCM43hojdgul/GDuFH0hJPugEQ4sCYRlYJSMQxsesGoXFwIjF8wqYRlqOw6QJVty7wyjcgQkpzDEj15H5SLKhE7G2TCOCL7QlXGQN4bGRw0k2yIFSiD4AwJvbwMCVE2vvAwBdMD8wviH5sWgLgWxCyciK5EEVFSiLQ5UE7wAvc7Q6rG14CCgrpIJ6wCFEYtiHtjBAhaRfxhhsTEZzeGig9hKCibgi0KwONjDAWG+ISUG+DAmDIxsDa94FRMOUrCs7QZSLYjM0MgEZuIShY4g0ptkwKiL2EJIIB2Noi5uXfaJVbxEpMSAV1HBB2h7XgL8u0GL2uBFk1lBbGUbYENcg3xCI9+5hrEYirAYsV0nN8wh5wiMYEMD0MJJYIIW2MCsEfRgza+0Im+0RcliYItbMRK5r2iYlI2iNar5gY5FaAVexSYA2uB1g+t4E9cQ" alt="ZomIA">
+            <h1>Briefing Comercial</h1>
+        </div>
+        <div class="progress-section">
+            <span id="progress">0%</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+        <div class="autosave-indicator" id="autosave">💾 Guardado</div>
+    </div>
+
+    <div class="container">
+        <form id="form" autocomplete="off">
+            <div class="section">
+                <div class="section-title">👤 Datos Básicos</div>
+                <div class="field"><label>Nombre comercial <span class="required">*</span></label><input type="text" name="empresa" required onchange="handleChange()" oninput="handleChange()"></div>
+                <div class="field"><label>Contacto <span class="required">*</span></label><input type="text" name="contacto" required onchange="handleChange()" oninput="handleChange()"></div>
+                <div class="field"><label>Teléfono <span class="required">*</span></label><input type="tel" name="telefono" required onchange="handleChange()" oninput="handleChange()"></div>
+                <div class="field"><label>Email</label><input type="email" name="email" onchange="handleChange()" oninput="handleChange()"></div>
+                <div class="field"><label>Localidad <span class="required">*</span></label><input type="text" name="localidad" required onchange="handleChange()" oninput="handleChange()"></div>
+                <div class="field"><label>Web</label><input type="text" name="web" onchange="handleChange()" oninput="handleChange()"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🔧 Servicios</div>
+                <div class="choices">
+                    <div class="choice"><input type="checkbox" name="servicios" value="Gatos" onchange="handleChange()"><label>Gatos hidráulicos</label></div>
+                    <div class="choice"><input type="checkbox" name="servicios" value="Cilindros" onchange="handleChange()"><label>Cilindros</label></div>
+                    <div class="choice"><input type="checkbox" name="servicios" value="Elevadores" onchange="handleChange()"><label>Elevadores</label></div>
+                    <div class="choice"><input type="checkbox" name="servicios" value="Bombas" onchange="handleChange()"><label>Bombas</label></div>
+                    <div class="choice"><input type="checkbox" name="servicios" value="Válvulas" onchange="handleChange()"><label>Válvulas</label></div>
+                    <div class="choice"><input type="checkbox" name="servicios" value="Mangueras" onchange="handleChange()"><label>Mangueras</label></div>
+                    <div class="choice"><input type="checkbox" name="servicios" value="Prensas" onchange="handleChange()"><label>Prensas</label></div>
+                    <div class="choice"><input type="checkbox" name="servicios" value="Mantenimiento" onchange="handleChange()"><label>Mantenimiento</label></div>
+                    <div class="choice"><input type="checkbox" name="servicios" value="Reparaciones" onchange="handleChange()"><label>Reparaciones</label></div>
+                    <div class="choice"><input type="checkbox" name="servicios" value="Otros" onchange="handleChange()"><label>Otros</label></div>
+                </div>
+                <div class="field" style="margin-top: 10px;"><label>Detalles</label><textarea name="otros_servicios" onchange="handleChange()" oninput="handleChange()"></textarea></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">👥 Clientes</div>
+                <div class="choices">
+                    <div class="choice"><input type="checkbox" name="clientes" value="Automoción" onchange="handleChange()"><label>Talleres automoción</label></div>
+                    <div class="choice"><input type="checkbox" name="clientes" value="Camiones" onchange="handleChange()"><label>Talleres camiones</label></div>
+                    <div class="choice"><input type="checkbox" name="clientes" value="Agrícola" onchange="handleChange()"><label>Agrícola</label></div>
+                    <div class="choice"><input type="checkbox" name="clientes" value="Industrial" onchange="handleChange()"><label>Industrial</label></div>
+                    <div class="choice"><input type="checkbox" name="clientes" value="Mantenimiento" onchange="handleChange()"><label>Mantenimiento</label></div>
+                    <div class="choice"><input type="checkbox" name="clientes" value="Concesionarios" onchange="handleChange()"><label>Concesionarios</label></div>
+                    <div class="choice"><input type="checkbox" name="clientes" value="Particulares" onchange="handleChange()"><label>Particulares</label></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📍 Operativa</div>
+                <div class="field"><label>Zona desplazamiento</label><input type="text" name="zona" onchange="handleChange()" oninput="handleChange()"></div>
+                <div class="field"><label>Recogida/entrega</label><select name="recogida" onchange="handleChange()"><option value="">Selecciona</option><option>Sí</option><option>No</option><option>Según</option></select></div>
+                <div class="field"><label>Servicio in situ</label><select name="in_situ" onchange="handleChange()"><option value="">Selecciona</option><option>Sí</option><option>No</option><option>Según</option></select></div>
+                <div class="field"><label>Urgencias</label><select name="urgencias" onchange="handleChange()"><option value="">Selecciona</option><option>Sí</option><option>No</option><option>Según</option></select></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">⚙️ Expertise</div>
+                <div class="field"><label>Equipos/marcas</label><textarea name="marcas" onchange="handleChange()" oninput="handleChange()"></textarea></div>
+                <div class="field"><label>Trabajos frecuentes</label><textarea name="frecuentes" onchange="handleChange()" oninput="handleChange()"></textarea></div>
+                <div class="field"><label>Diferenciación</label><textarea name="diferencia" onchange="handleChange()" oninput="handleChange()"></textarea></div>
+                <div class="field"><label>Garantía</label><input type="text" name="garantia" onchange="handleChange()" oninput="handleChange()"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🎯 Objetivos</div>
+                <div class="choices">
+                    <div class="choice"><input type="checkbox" name="objetivo" value="Coches" onchange="handleChange()"><label>Más talleres coches</label></div>
+                    <div class="choice"><input type="checkbox" name="objetivo" value="Camiones" onchange="handleChange()"><label>Talleres camiones</label></div>
+                    <div class="choice"><input type="checkbox" name="objetivo" value="Agrícola" onchange="handleChange()"><label>Talleres agrícolas</label></div>
+                    <div class="choice"><input type="checkbox" name="objetivo" value="Industrial" onchange="handleChange()"><label>Industrial</label></div>
+                    <div class="choice"><input type="checkbox" name="objetivo" value="Mantenimiento" onchange="handleChange()"><label>Mantenimiento</label></div>
+                    <div class="choice"><input type="checkbox" name="objetivo" value="Grandes" onchange="handleChange()"><label>Grandes cuentas</label></div>
+                </div>
+                <div class="field" style="margin-top: 10px;"><label>Cliente ideal</label><textarea name="cliente_ideal" onchange="handleChange()" oninput="handleChange()"></textarea></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">✨ Preferencias</div>
+                <div class="field"><label>Promocionar</label><textarea name="promocionar" onchange="handleChange()" oninput="handleChange()"></textarea></div>
+                <div class="field"><label>NO publicar</label><textarea name="no_publicar" onchange="handleChange()" oninput="handleChange()"></textarea></div>
+                <div class="field"><label>Observaciones</label><textarea name="observaciones" onchange="handleChange()" oninput="handleChange()"></textarea></div>
+                <div class="field"><label>Enlaces</label><input type="text" name="material" onchange="handleChange()" oninput="handleChange()"></div>
+            </div>
+        </form>
+    </div>
+
+    <div class="button-group">
+        <button type="button" class="btn-primary" id="btnDownload" ontouchstart="">📥 CSV</button>
+        <button type="button" class="btn-secondary" id="btnPreview" ontouchstart="">👁️ Ver</button>
+        <button type="button" class="btn-secondary btn-danger" id="btnClear" ontouchstart="">🗑️ Limpiar</button>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2>Resumen</h2>
+            <div id="modalBody"></div>
+            <button type="button" class="btn-secondary" style="width: 100%; margin-top: 12px;" id="btnClose" ontouchstart="">Cerrar</button>
+        </div>
+    </div>
+
+    <div class="status-message" id="status"></div>
+
+    <script>
+        const form = document.getElementById('form');
+        const progressEl = document.getElementById('progress');
+        const progressBarEl = document.getElementById('progressBar');
+        const autosaveEl = document.getElementById('autosave');
+        const modal = document.getElementById('modal');
+        const statusEl = document.getElementById('status');
+
+        // Manejador centralizado
+        function handleChange() {
+            updateProgress();
+            autoSave();
+        }
+
+        // Barra de progreso
+        function updateProgress() {
+            const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea, select');
+            const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+
+            let filled = 0;
+
+            inputs.forEach(input => {
+                if (input.value && input.value.trim() !== '') filled++;
+            });
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) filled++;
+            });
+
+            const total = inputs.length + checkboxes.length;
+            const percent = Math.round((filled / total) * 100);
+
+            progressEl.textContent = percent + '%';
+            progressBarEl.style.width = percent + '%';
+
+            console.log('📊 Progreso: ' + percent + '%');
+        }
+
+        // Guardar automáticamente
+        let saveTimeout;
+        function autoSave() {
+            clearTimeout(saveTimeout);
+
+            const data = {};
+            const servicios = [];
+            const clientes = [];
+            const objetivos = [];
+
+            form.querySelectorAll('input, textarea, select').forEach(el => {
+                if (el.type === 'checkbox') {
+                    if (el.name === 'servicios' && el.checked) servicios.push(el.value);
+                    if (el.name === 'clientes' && el.checked) clientes.push(el.value);
+                    if (el.name === 'objetivo' && el.checked) objetivos.push(el.value);
+                } else if (el.type !== 'checkbox') {
+                    if (el.value) data[el.name] = el.value;
+                }
+            });
+
+            if (servicios.length) data.servicios = servicios.join(', ');
+            if (clientes.length) data.clientes = clientes.join(', ');
+            if (objetivos.length) data.objetivo = objetivos.join(', ');
+
+            localStorage.setItem('zomia_data', JSON.stringify(data));
+
+            autosaveEl.classList.add('show');
+            saveTimeout = setTimeout(() => {
+                autosaveEl.classList.remove('show');
+            }, 1200);
+
+            console.log('✅ Guardado en localStorage');
+        }
+
+        // Cargar datos
+        function loadData() {
+            const saved = localStorage.getItem('zomia_data');
+            if (!saved) {
+                console.log('ℹ️ Sin datos guardados');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(saved);
+                console.log('📂 Cargando datos...');
+
+                Object.keys(data).forEach(key => {
+                    const elements = form.querySelectorAll(`[name="${key}"]`);
+                    if (!elements.length) return;
+
+                    if (elements[0].type === 'checkbox') {
+                        const values = data[key].split(', ');
+                        elements.forEach(el => {
+                            if (values.includes(el.value)) el.checked = true;
+                        });
+                    } else {
+                        elements[0].value = data[key];
+                    }
+                });
+
+                showStatus('✅ Datos recuperados', 'success');
+                updateProgress();
+            } catch (e) {
+                console.error('Error:', e);
+            }
+        }
+
+        // Funciones auxiliares
+        function showStatus(msg, type) {
+            statusEl.textContent = msg;
+            statusEl.className = 'status-message show ' + type;
+            setTimeout(() => statusEl.classList.remove('show'), 2500);
+        }
+
+        function getData() {
+            const data = {};
+            form.querySelectorAll('input, textarea, select').forEach(el => {
+                if (el.type === 'checkbox') {
+                    if (el.checked) {
+                        if (!data[el.name]) data[el.name] = [];
+                        data[el.name].push(el.value);
+                    }
+                } else if (el.type !== 'checkbox') {
+                    data[el.name] = el.value;
+                }
+            });
+
+            Object.keys(data).forEach(key => {
+                if (Array.isArray(data[key])) data[key] = data[key].join(', ');
+            });
+
+            data.timestamp = new Date().toLocaleString('es-ES');
+            return data;
+        }
+
+        function downloadCSV() {
+            const data = getData();
+            const keys = Object.keys(data);
+            const values = Object.values(data).map(v => `"${String(v).replace(/"/g, '""')}"`);
+            const csv = keys.join(',') + '\n' + values.join(',');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `briefing-${Date.now()}.csv`;
+            link.click();
+
+            navigator.clipboard.writeText(csv).catch(() => {});
+            showStatus('✅ CSV descargado', 'success');
+        }
+
+        function showPreview() {
+            const data = getData();
+            let html = '';
+            Object.entries(data).forEach(([key, value]) => {
+                html += `<div class="modal-item"><strong>${key}</strong>${value}</div>`;
+            });
+            document.getElementById('modalBody').innerHTML = html;
+            modal.classList.add('show');
+        }
+
+        function validate() {
+            const required = form.querySelectorAll('[required]');
+            for (const field of required) {
+                if (!field.value.trim()) {
+                    field.scrollIntoView();
+                    showStatus('⚠️ Rellena campos (*)', 'error');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Eventos
+        document.getElementById('btnDownload').addEventListener('click', () => {
+            if (!validate()) return;
+            downloadCSV();
+        });
+
+        document.getElementById('btnPreview').addEventListener('click', showPreview);
+
+        document.getElementById('btnClear').addEventListener('click', () => {
+            if (confirm('¿Limpiar?')) {
+                form.reset();
+                localStorage.removeItem('zomia_data');
+                updateProgress();
+                showStatus('🗑️ Limpiado', 'info');
+            }
+        });
+
+        document.getElementById('btnClose').addEventListener('click', () => {
+            modal.classList.remove('show');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('show');
+        });
+
+        // Iniciar
+        console.log('🚀 Iniciando...');
+        loadData();
+        updateProgress();
+    </script>
+</body>
+</html>
