@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <title>ZomIA Briefing</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-user-select: none; user-select: none; }
         html, body { width: 100%; height: 100%; }
@@ -401,8 +402,9 @@
             </div>
 
             <div class="section">
-                <div class="section-title">📍 Operativa</div>
-                <div class="field"><label>Zona desplazamiento</label><input type="text" name="zona" onchange="handleChange()" oninput="handleChange()"></div>
+                <div class="section-title">📍 Zona y Prospección</div>
+                <div class="field"><label>¿Cuál es tu zona de trabajo actual? <span class="required">*</span></label><input type="text" name="zona_trabajo" required onchange="handleChange()" oninput="handleChange()" placeholder="Ej.: Castilla La Mancha, Andalucía, etc."></div>
+                <div class="field"><label>¿Dónde quieres que busquemos leads? <span class="required">*</span></label><input type="text" name="zona_busqueda" required onchange="handleChange()" oninput="handleChange()" placeholder="Ej.: 100 km alrededor, zona levantina, toda España, etc."></div>
                 <div class="field"><label>Recogida/entrega</label><select name="recogida" onchange="handleChange()"><option value="">Selecciona</option><option>Sí</option><option>No</option><option>Según</option></select></div>
                 <div class="field"><label>Servicio in situ</label><select name="in_situ" onchange="handleChange()"><option value="">Selecciona</option><option>Sí</option><option>No</option><option>Según</option></select></div>
                 <div class="field"><label>Urgencias</label><select name="urgencias" onchange="handleChange()"><option value="">Selecciona</option><option>Sí</option><option>No</option><option>Según</option></select></div>
@@ -440,7 +442,7 @@
     </div>
 
     <div class="button-group">
-        <button type="button" class="btn-primary" id="btnDownload" ontouchstart="">📥 CSV</button>
+        <button type="button" class="btn-primary" id="btnSend" ontouchstart="">📤 Enviar</button>
         <button type="button" class="btn-secondary" id="btnPreview" ontouchstart="">👁️ Ver</button>
         <button type="button" class="btn-secondary btn-danger" id="btnClear" ontouchstart="">🗑️ Limpiar</button>
     </div>
@@ -588,20 +590,76 @@
             return data;
         }
 
-        function downloadCSV() {
+        function downloadPDF() {
             const data = getData();
-            const keys = Object.keys(data);
-            const values = Object.values(data).map(v => `"${String(v).replace(/"/g, '""')}"`);
-            const csv = keys.join(',') + '\n' + values.join(',');
+            let html = '<div style="font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5;">';
+            html += '<h1 style="color: #050b16; margin-bottom: 10px;">' + (data.empresa || 'Briefing') + '</h1>';
+            html += '<p style="color: #666; font-size: 12px; margin-bottom: 20px;">Generado: ' + data.timestamp + '</p>';
 
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `briefing-${Date.now()}.csv`;
-            link.click();
+            Object.entries(data).forEach(([key, value]) => {
+                if (key !== 'timestamp') {
+                    html += '<div style="margin-bottom: 15px;">';
+                    html += '<strong style="color: #050b16; font-size: 13px; display: block; margin-bottom: 3px;">' + key.replace(/_/g, ' ') + '</strong>';
+                    html += '<p style="color: #333; margin: 0; font-size: 12px; word-break: break-word;">' + value + '</p>';
+                    html += '</div>';
+                }
+            });
+            html += '</div>';
 
-            navigator.clipboard.writeText(csv).catch(() => {});
-            showStatus('✅ CSV descargado', 'success');
+            const element = document.createElement('div');
+            element.innerHTML = html;
+
+            html2pdf = window.html2pdf || {};
+            const opt = {
+                margin: 10,
+                filename: 'briefing-' + (data.empresa || 'zomia') + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+
+            try {
+                // Fallback si html2pdf no está disponible
+                if (window.html2pdf) {
+                    window.html2pdf().set(opt).fromString(html).save();
+                } else {
+                    // Fallback simple: descargar como texto
+                    const blob = new Blob([html], { type: 'text/html' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'briefing-' + Date.now() + '.html';
+                    link.click();
+                }
+                showStatus('✅ PDF generado', 'success');
+            } catch (e) {
+                showStatus('⚠️ PDF generado en texto', 'info');
+            }
+        }
+
+        async function sendToGoogleSheets() {
+            const data = getData();
+            const SERVER_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxsd25DgmSkyY5CKjgcSPno5WqtMpt5FmOmClQDeTd34gDzRASGwvccFZsN3AGNAQ8d/exec';
+
+            try {
+                showStatus('📤 Enviando datos...', 'info');
+                const response = await fetch(SERVER_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showStatus('✅ Enviado a Google Sheets', 'success');
+                    return true;
+                } else {
+                    showStatus('⚠️ No se pudo enviar a Sheets', 'info');
+                    return false;
+                }
+            } catch (err) {
+                showStatus('⚠️ Error de conexión', 'info');
+                console.error('Error:', err);
+                return false;
+            }
         }
 
         function showPreview() {
@@ -627,9 +685,10 @@
         }
 
         // Eventos
-        document.getElementById('btnDownload').addEventListener('click', () => {
+        document.getElementById('btnSend').addEventListener('click', async () => {
             if (!validate()) return;
-            downloadCSV();
+            await sendToGoogleSheets();
+            downloadPDF();
         });
 
         document.getElementById('btnPreview').addEventListener('click', showPreview);
