@@ -9,46 +9,59 @@
 
 ## ✨ Características
 
-- ✅ **Autosave** — Los datos se guardan automáticamente en tu dispositivo
+- ✅ **Autosave** — Los datos se guardan automáticamente cada 300ms
 - ✅ **Mobile-First** — Optimizado para teléfono, tablet y escritorio
 - ✅ **Sin instalación** — Funciona directamente en el navegador
 - ✅ **Google Sheets Integration** — Envía datos directamente a tu hoja de cálculo
-- ✅ **PDF Automático** — Descarga PDF con los datos del briefing
-- ✅ **Offline** — Los datos se guardan localmente si pierdes conexión
-- ✅ **Logo Embebido** — Imagen base64 sin dependencias externas
+- ✅ **PDF Automático** — Descarga PDF profesional con los datos
+- ✅ **Offline** — Los datos se guardan localmente aunque pierdas conexión
+- ✅ **Dark Theme Profesional** — Diseño moderno con animaciones
 
 ---
 
-## 📋 Secciones del Formulario
+## 📋 Flujo Completo (3 pasos)
 
-1. **Datos Básicos** — Empresa, contacto, teléfono, email, localidad
-2. **Servicios** — Selecciona los servicios que ofreces
-3. **Clientes** — Indica a qué tipo de empresas atiendes
-4. **Zona y Prospección** — Define tu zona de trabajo y dónde buscar leads
-5. **Diferenciación** — Explica qué te diferencia del mercado
-6. **Objetivos** — Qué tipo de cliente quieres conseguir
-7. **Preferencias** — Datos adicionales y restricciones
+### 1️⃣ **Rellena el formulario**
+El formulario tiene **7 secciones**:
+1. Datos de empresa (nombre, contacto, teléfono, email, localidad)
+2. Servicios que realizáis (checkboxes)
+3. Clientes a los que atendéis (checkboxes)
+4. Zona y modalidad de trabajo
+5. Especialización y diferenciación
+6. Objetivo comercial
+7. Material y observaciones
 
----
+✅ Los datos se guardan **automáticamente cada 300ms**
 
-## 🔧 Uso
+### 2️⃣ **Haz clic en "Enviar briefing →"**
+El sistema automáticamente:
+- Envía los datos a Google Sheets
+- Genera un PDF profesional
+- Descarga el PDF a tu dispositivo
 
-1. Abre el enlace desde tu móvil o navegador
-2. Completa el formulario (se guarda automáticamente)
-3. Haz clic en "👁️ Ver" para revisar los datos
-4. Haz clic en "📤 Enviar" para:
-   - Enviar a Google Sheets (una fila por empresa)
-   - Descargar PDF automáticamente
+Verás estos mensajes:
+```
+Enviando a Google Sheets...
+↓
+✅ Enviado a Google Sheets - Descargando PDF...
+↓
+✅ Completado - PDF descargado + Sheets actualizado
+```
+
+### 3️⃣ **Recibe dos archivos**
+- 📊 **Nueva fila en Google Sheets** con todos tus datos
+- 📄 **PDF descargado** como comprobante (`ZomIA_Briefing_[empresa]_[timestamp].pdf`)
 
 ---
 
 ## 💾 Tecnología
 
-- HTML5 + CSS3 + Vanilla JavaScript
-- localStorage para persistencia local
-- Google Apps Script para integración con Sheets
-- html2pdf.js para generación de PDF
-- Responsive design sin frameworks
+- HTML5 + CSS3 + Vanilla JavaScript (sin frameworks)
+- **localStorage + IndexedDB** para persistencia local
+- **Google Apps Script** para integración con Google Sheets
+- **jsPDF** para generación de PDF profesional
+- Responsive design (mobile-first)
+- Dark theme elegante y accesible
 
 ---
 
