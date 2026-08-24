@@ -206,9 +206,10 @@ footer{padding:0 0 50px;color:#61728a;font-size:11px;text-align:center}
       </section>
 
       <div class="actions">
-        <button class="primary" type="submit">Enviar briefing →</button>
-        <button class="secondary" type="button" id="copy">Copiar resumen</button>
-        <span class="status">Al enviar se abrirá tu aplicación de correo con el briefing preparado.</span>
+        <button class="secondary" type="button" id="cleanBtn">🗑️ Limpiar</button>
+        <button class="secondary" type="button" id="previewBtn">👁️ Vista previa</button>
+        <button class="primary" type="submit">📤 Enviar → Sheets + PDF</button>
+        <span class="status">Se enviará a Google Sheets y se descargará un PDF automáticamente.</span>
       </div>
       <div class="success" id="notice"></div>
     </form>
@@ -221,7 +222,7 @@ const DB='zomiaBriefingDB', STORE='drafts', KEY='briefing-v2';
 const SERVER_ENDPOINT='https://script.google.com/macros/s/AKfycbxpbgVpFp-WSk5g4d6QWGl420QkKjSsmSnPk-ZyzWSxwPJHrE7_KZMjpBd1-L5Ptm0H/exec';
 const form=document.getElementById('briefing');
 const bar=document.getElementById('bar'), pct=document.getElementById('pct');
-const status=document.getElementById('draftText'), noticeEl=document.getElementById('success');
+const status=document.getElementById('draftText')||document.createElement('div'), noticeEl=document.getElementById('success');
 let timer=null, dirty=false;
 
 function openDB(){return new Promise((ok,bad)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>ok(r.result);r.onerror=()=>bad(r.error)})}
@@ -268,6 +269,21 @@ function showNotice(msg,ok=false){
  noticeEl.style.display='block';noticeEl.className='notice '+(ok?'ok':'err');noticeEl.innerHTML=msg;
 }
 form.addEventListener('input',queue);form.addEventListener('change',queue);
+
+const bClean=document.getElementById('cleanBtn');
+if(bClean)bClean.onclick=async()=>{if(confirm('¿Borrar todos los datos y empezar de nuevo?')){await clearDraft();form.reset();progress();showNotice('✓ Formulario limpiado','ok')}};
+
+const bPreview=document.getElementById('previewBtn');
+if(bPreview)bPreview.onclick=()=>{
+ const d=snap();
+ let txt='📋 RESUMEN DEL BRIEFING\n\n';
+ Object.entries(d).forEach(([k,v])=>{
+  if(v&&String(v).trim()){
+   txt+=k.toUpperCase()+': '+(Array.isArray(v)?v.join(', '):String(v))+'\n';
+  }
+ });
+ alert(txt);
+};
 
 const newBtn=document.getElementById('newBtn');
 if(newBtn)newBtn.onclick=async()=>{if(confirm('¿Borrar el borrador y empezar de nuevo?')){await clearDraft();form.reset();progress()}};
