@@ -221,7 +221,7 @@ const DB='zomiaBriefingDB', STORE='drafts', KEY='briefing-v2';
 const SERVER_ENDPOINT='https://script.google.com/macros/s/AKfycbxpbgVpFp-WSk5g4d6QWGl420QkKjSsmSnPk-ZyzWSxwPJHrE7_KZMjpBd1-L5Ptm0H/exec';
 const form=document.getElementById('briefing');
 const bar=document.getElementById('bar'), pct=document.getElementById('pct');
-const status=document.getElementById('draftText'), notice=document.getElementById('success');
+const status=document.getElementById('draftText'), noticeDOM=document.getElementById('success');
 let timer=null, dirty=false;
 
 function openDB(){return new Promise((ok,bad)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>ok(r.result);r.onerror=()=>bad(r.error)})}
@@ -264,9 +264,8 @@ async function restore(){
  }
 }
 function notice(msg,ok=false){
- const n=document.getElementById('notice')||document.getElementById('success');
- if(!n)return;
- n.style.display='block';n.className='notice '+(ok?'ok':'err');n.innerHTML=msg;
+ if(!noticeDOM)return;
+ noticeDOM.style.display='block';noticeDOM.className='notice '+(ok?'ok':'err');noticeDOM.innerHTML=msg;
 }
 form.addEventListener('input',queue);form.addEventListener('change',queue);
 
@@ -276,21 +275,45 @@ const mc=document.getElementById('modalContinue'), mn=document.getElementById('m
 if(mc)mc.onclick=()=>document.getElementById('modal').classList.remove('show');
 if(mn)mn.onclick=async()=>{await clearDraft();form.reset();document.getElementById('modal').classList.remove('show');progress()};
 
-async function generatePDF(){const data=snap();if(!meaningful(data)){notice('<b>Formulario vacío.</b><br>Completa al menos algunos campos.','err');return}try{const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});const pageWidth=doc.internal.pageSize.getWidth(),pageHeight=doc.internal.pageSize.getHeight(),margin=15,contentWidth=pageWidth-2*margin;let yPos=margin;doc.setFontSize(16);doc.setTextColor(45,168,255);doc.text('ZomIA Briefing Comercial',margin,yPos);yPos+=12;doc.setFontSize(10);doc.setTextColor(100,100,100);doc.text('Fecha: '+new Date().toLocaleDateString('es-ES'),margin,yPos);yPos+=10;doc.setDrawColor(113,229,255);doc.line(margin,yPos,pageWidth-margin,yPos);yPos+=8;doc.setFontSize(11);doc.setTextColor(50,50,50);const sections=[{title:'Datos Básicos',fields:['empresa','contacto','telefono','email','localidad']},{title:'Servicios',fields:['servicios']},{title:'Clientes',fields:['clientes']},{title:'Zona de Trabajo',fields:['zona_trabajo','zona_busqueda','recogida','in_situ','urgencias']},{title:'Diferenciación',fields:['marcas','frecuentes','diferencia','garantia']},{title:'Objetivos',fields:['objetivo','cliente_ideal','promocionar','no_publicar']},{title:'Observaciones',fields:['observaciones']}];for(const section of sections){doc.setFontSize(12);doc.setTextColor(45,168,255);doc.text(section.title,margin,yPos);yPos+=7;doc.setFontSize(10);doc.setTextColor(50,50,50);for(const field of section.fields){const value=data[field];if(value&&String(value).trim()){const fieldName=field.charAt(0).toUpperCase()+field.slice(1).replace(/_/g,' '),fieldValue=Array.isArray(value)?value.join(', '):String(value),splitText=doc.splitTextToSize(fieldName+': '+fieldValue,contentWidth-10);for(const line of splitText){if(yPos+5>pageHeight-margin){doc.addPage();yPos=margin}doc.text(line,margin+5,yPos);yPos+=5}yPos+=2}}if(yPos+8>pageHeight-margin){doc.addPage();yPos=margin}else yPos+=5}const empresa=data.empresa||'briefing',filename='ZomIA_Briefing_'+empresa.replace(/\s+/g,'_')+'_'+Date.now()+'.pdf';doc.save(filename);notice('<b>PDF descargado.</b><br>Archivo: '+filename,'ok')}catch(err){console.error('PDF Error:',err);notice('<b>Error en PDF.</b><br>'+err.message,'err')}}
+async function downloadPDF(){
+ const data=snap();if(!meaningful(data)){notice('Completa el formulario','err');return}
+ try{
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  const pg=doc.internal.pageSize.getWidth();
+  let y=20;
+  doc.setFontSize(14);doc.text('ZomIA Briefing',20,y);y+=10;
+  Object.entries(data).forEach(([k,v])=>{
+   if(v&&String(v).trim()){
+    const val=Array.isArray(v)?v.join(', '):String(v);
+    const txt=doc.splitTextToSize(k+': '+val,170);
+    txt.forEach(line=>{if(y>270){doc.addPage();y=20}doc.setFontSize(10);doc.text(line,20,y);y+=5});
+    y+=3;
+   }
+  });
+  const empresa=(data.empresa||'briefing').slice(0,15);
+  doc.save('ZomIA_'+empresa+'_'+Date.now()+'.pdf');
+  notice('PDF descargado','ok');
+ }catch(e){
+  console.error(e);
+  notice('Error al generar PDF','err');
+ }
+}
+const pdfBtn=document.getElementById('pdfBtn');if(pdfBtn)pdfBtn.onclick=downloadPDF;
 
 form.addEventListener('submit',async e=>{
  e.preventDefault(); await save();
  if(!form.reportValidity())return;
  if(!SERVER_ENDPOINT){
-   notice('<b>✅ Formulario listo</b><br>Tus datos están guardados en el navegador.','err'); return;
+   notice('<b>El formulario está listo, pero aún falta conectar el destino de recepción.</b><br>Tus datos siguen guardados y no se han perdido.','err'); return;
  }
  try{
    const r=await fetch(SERVER_ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(snap())});
    if(!r.ok)throw Error('HTTP '+r.status);
    await clearDraft();form.reset();progress();
-   notice('<b>✅ Briefing enviado</b><br>Datos recibidos en Google Sheets.','ok');
+   notice('<b>Briefing enviado correctamente.</b><br>Hemos recibido la información.','ok');
  }catch(err){
-   notice('<b>❌ Error al enviar</b><br>Tus datos siguen guardados. Intenta de nuevo.','err');
+   notice('<b>No hemos podido enviar el briefing.</b><br>Tus respuestas siguen guardadas. Puedes volver a intentarlo sin rellenar el formulario de nuevo.','err');
  }
 });
 window.addEventListener('pagehide',()=>{if(meaningful(snap()))lsPut(snap())});
