@@ -344,9 +344,7 @@ form.addEventListener('submit',async e=>{
 });
 window.addEventListener('pagehide',()=>{if(meaningful(snap()))lsPut(snap())});
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
-// Cada vez que se carga la página, limpia datos previos para privacidad
-// (Así cada cliente ve un formulario limpio, sin datos de clientes anteriores)
-clearDraft();progress();
+restore();progress();
 </script>
 </body>
 </html>
