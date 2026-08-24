@@ -263,7 +263,7 @@ async function restore(){
    const m=document.getElementById('modal'); if(m)m.classList.add('show');
  }
 }
-function notice(msg,ok=false){
+function showNotice(msg,ok=false){
  if(!noticeEl)return;
  noticeEl.style.display='block';noticeEl.className='notice '+(ok?'ok':'err');noticeEl.innerHTML=msg;
 }
