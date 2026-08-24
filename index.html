@@ -276,44 +276,26 @@ if(mc)mc.onclick=()=>document.getElementById('modal').classList.remove('show');
 if(mn)mn.onclick=async()=>{await clearDraft();form.reset();document.getElementById('modal').classList.remove('show');progress()};
 
 async function downloadPDF(){
- const data=snap();if(!meaningful(data)){notice('Completa el formulario','err');return}
- try{
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF();
-  const pg=doc.internal.pageSize.getWidth();
-  let y=20;
-  doc.setFontSize(14);doc.text('ZomIA Briefing',20,y);y+=10;
-  Object.entries(data).forEach(([k,v])=>{
-   if(v&&String(v).trim()){
-    const val=Array.isArray(v)?v.join(', '):String(v);
-    const txt=doc.splitTextToSize(k+': '+val,170);
-    txt.forEach(line=>{if(y>270){doc.addPage();y=20}doc.setFontSize(10);doc.text(line,20,y);y+=5});
-    y+=3;
-   }
-  });
-  const empresa=(data.empresa||'briefing').slice(0,15);
-  doc.save('ZomIA_'+empresa+'_'+Date.now()+'.pdf');
-  notice('PDF descargado','ok');
- }catch(e){
-  console.error(e);
-  notice('Error al generar PDF','err');
- }
-}
-const pdfBtn=document.getElementById('pdfBtn');if(pdfBtn)pdfBtn.onclick=downloadPDF;
+ const d=snap();if(!meaningful(d)){notice('Completa el formulario','err');return}
+ try{const {jsPDF}=window.jspdf;const doc=new jsPDF();let y=20;doc.setFontSize(14);doc.text('ZomIA Briefing',20,y);y+=10;Object.entries(d).forEach(([k,v])=>{if(v&&String(v).trim()){const txt=doc.splitTextToSize(k+': '+(Array.isArray(v)?v.join(', '):String(v)),170);txt.forEach(line=>{if(y>270){doc.addPage();y=20}doc.setFontSize(10);doc.text(line,20,y);y+=5});y+=3}});const emp=(d.empresa||'briefing').slice(0,15);doc.save('ZomIA_'+emp+'_'+Date.now()+'.pdf');notice('PDF descargado','ok')}catch(e){console.error(e);notice('Error PDF','err')}}
 
 form.addEventListener('submit',async e=>{
  e.preventDefault(); await save();
  if(!form.reportValidity())return;
  if(!SERVER_ENDPOINT){
-   notice('<b>El formulario está listo, pero aún falta conectar el destino de recepción.</b><br>Tus datos siguen guardados y no se han perdido.','err'); return;
+   notice('Error: Servidor no configurado','err'); return;
  }
  try{
+   notice('Enviando datos...','');
    const r=await fetch(SERVER_ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(snap())});
    if(!r.ok)throw Error('HTTP '+r.status);
+   notice('✅ Enviado a Google Sheets - Generando PDF...','ok');
+   await new Promise(res=>setTimeout(res,800));
+   await downloadPDF();
    await clearDraft();form.reset();progress();
-   notice('<b>Briefing enviado correctamente.</b><br>Hemos recibido la información.','ok');
+   notice('✅ Completado - PDF descargado + Sheets actualizado','ok');
  }catch(err){
-   notice('<b>No hemos podido enviar el briefing.</b><br>Tus respuestas siguen guardadas. Puedes volver a intentarlo sin rellenar el formulario de nuevo.','err');
+   notice('❌ Error al enviar (datos guardados localmente)','err');
  }
 });
 window.addEventListener('pagehide',()=>{if(meaningful(snap()))lsPut(snap())});
