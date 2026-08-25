@@ -339,7 +339,8 @@ form.addEventListener('submit',async e=>{
    await clearDraft();form.reset();progress();
    showNotice('✅ Completado - PDF descargado + Sheets actualizado','ok');
  }catch(err){
-   showNotice('<b>❌ Error al enviar</b><br>Tus datos siguen guardados. Puedes volver a intentarlo.','err');
+   console.error('Error enviando:', err);
+   showNotice('<b>❌ Error al enviar</b><br>'+err.message+'<br>Tus datos siguen guardados. Puedes volver a intentarlo.','err');
  }
 });
 window.addEventListener('pagehide',()=>{if(meaningful(snap()))lsPut(snap())});
