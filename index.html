@@ -253,7 +253,7 @@ function queue(){clearTimeout(timer);timer=setTimeout(save,300);progress()}
 function progress(){
  const req=[...form.querySelectorAll('[required]')], a=req.filter(x=>x.value.trim()).length/Math.max(1,req.length);
  const checks=form.querySelectorAll('input[type=checkbox]:checked').length;
- const p=Math.min(100,Math.round(a*45+(checks?20:0)));
+ const p=Math.min(100,Math.round(a*70+(checks?30:0)));
  bar.style.width=p+'%';pct.textContent=p+'%';
 }
 async function clearDraft(){await idbDel();lsDel();dirty=false}
