@@ -314,12 +314,17 @@ async function downloadPDF(){
 form.addEventListener('submit',async e=>{
  e.preventDefault(); await save();
  if(!form.reportValidity())return;
- if(!SERVER_ENDPOINT){
-   showNotice('<b>El formulario está listo, pero aún falta conectar el destino de recepción.</b><br>Tus datos siguen guardados y no se han perdido.','err'); return;
- }
  try{
    showNotice('Enviando a Google Sheets...','');
-   const r=await fetch(SERVER_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(snap())});
+   const d=snap();
+   d.submissionId=Math.random().toString(36).substring(7);
+
+   const formData=new FormData();
+   Object.entries(d).forEach(([k,v])=>{
+    formData.append(k,Array.isArray(v)?v.join(', '):String(v));
+   });
+
+   const r=await fetch(SERVER_ENDPOINT,{method:'POST',body:formData});
    if(!r.ok)throw Error('HTTP '+r.status);
    showNotice('✅ Enviado a Google Sheets<br>Descargando PDF...','ok');
    await new Promise(res=>setTimeout(res,1000));
