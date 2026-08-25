@@ -96,7 +96,6 @@ footer{padding:0 0 50px;color:#61728a;font-size:11px;text-align:center}
   .form-shell{border-radius:22px}
 }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <main class="wrap">
@@ -206,10 +205,9 @@ footer{padding:0 0 50px;color:#61728a;font-size:11px;text-align:center}
       </section>
 
       <div class="actions">
-        <button class="secondary" type="button" id="cleanBtn">🗑️ Limpiar</button>
-        <button class="secondary" type="button" id="previewBtn">👁️ Vista previa</button>
-        <button class="primary" type="submit">📤 Enviar → Sheets + PDF</button>
-        <span class="status">Se enviará a Google Sheets y se descargará un PDF automáticamente.</span>
+        <button class="primary" type="submit">Enviar briefing →</button>
+        <button class="secondary" type="button" id="copy">Copiar resumen</button>
+        <span class="status">Al enviar se abrirá tu aplicación de correo con el briefing preparado.</span>
       </div>
       <div class="success" id="notice"></div>
     </form>
@@ -217,134 +215,3 @@ footer{padding:0 0 50px;color:#61728a;font-size:11px;text-align:center}
   <footer>ZomIA · Preparación comercial · Este formulario recopila la información necesaria para elaborar la propuesta.</footer>
 </main>
 
-<script>
-const DB='zomiaBriefingDB', STORE='drafts', KEY='briefing-v2';
-const SERVER_ENDPOINT='https://script.google.com/macros/s/AKfycbzrLdCmnwH9Zg6baxIdVshLQs42jip8vTcmK3bvOYeksdvsToNO_jSHSvWQDnBki7JZ/exec';
-const form=document.getElementById('briefing');
-const bar=document.getElementById('bar'), pct=document.getElementById('pct');
-const status=document.getElementById('draftText')||document.createElement('div'), noticeEl=document.getElementById('notice');
-let timer=null, dirty=false;
-
-function openDB(){return new Promise((ok,bad)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>ok(r.result);r.onerror=()=>bad(r.error)})}
-async function idbPut(data){try{const db=await openDB();return new Promise((ok,bad)=>{const t=db.transaction(STORE,'readwrite');t.objectStore(STORE).put({data,at:Date.now()},KEY);t.oncomplete=ok;t.onerror=()=>bad(t.error)})}catch(e){}}
-async function idbGet(){try{const db=await openDB();return new Promise((ok,bad)=>{const r=db.transaction(STORE).objectStore(STORE).get(KEY);r.onsuccess=()=>ok(r.result||null);r.onerror=()=>bad(r.error)})}catch(e){return null}}
-async function idbDel(){try{const db=await openDB();return new Promise(ok=>{const t=db.transaction(STORE,'readwrite');t.objectStore(STORE).delete(KEY);t.oncomplete=ok})}catch(e){}}
-function lsPut(d){try{localStorage.setItem(KEY,JSON.stringify({data:d,at:Date.now()}))}catch(e){}}
-function lsGet(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
-function lsDel(){try{localStorage.removeItem(KEY)}catch(e){}}
-
-function snap(){
- const d={};
- [...form.elements].forEach(x=>{if(!x.name)return;if(x.type==='checkbox'){d[x.name]??=[];if(x.checked)d[x.name].push(x.value)}else d[x.name]=x.value});
- return d;
-}
-function meaningful(d){return d&&Object.values(d).some(v=>Array.isArray(v)?v.length:String(v||'').trim())}
-function apply(d){
- if(!d)return;
- [...form.elements].forEach(x=>{if(!x.name)return;if(x.type==='checkbox')x.checked=Array.isArray(d[x.name])&&d[x.name].includes(x.value);else if(d[x.name]!==undefined)x.value=d[x.name]});
- progress();
-}
-async function save(){
- const d=snap(); if(!meaningful(d))return;
- await idbPut(d); lsPut(d); dirty=true;
- status.innerHTML='<span style="color:#63e4ac;font-weight:700">✓ Borrador guardado automáticamente</span>';
-}
-function queue(){clearTimeout(timer);timer=setTimeout(save,300);progress()}
-function progress(){
- const req=[...form.querySelectorAll('[required]')], a=req.filter(x=>x.value.trim()).length/Math.max(1,req.length);
- const checks=form.querySelectorAll('input[type=checkbox]:checked').length;
- const p=Math.min(100,Math.round(a*45+(checks?20:0)));
- bar.style.width=p+'%';pct.textContent=p+'%';
-}
-async function clearDraft(){await idbDel();lsDel();dirty=false}
-async function restore(){
- const a=await idbGet(), b=lsGet(), best=a&&b?(a.at>=b.at?a:b):(a||b);
- if(best&&meaningful(best.data)){
-   apply(best.data);
-   const m=document.getElementById('modal'); if(m)m.classList.add('show');
- }
-}
-function showNotice(msg,ok=false){
- if(!noticeEl)return;
- noticeEl.style.display='block';noticeEl.className='notice '+(ok?'ok':'err');noticeEl.innerHTML=msg;
-}
-form.addEventListener('input',queue);form.addEventListener('change',queue);
-
-const bClean=document.getElementById('cleanBtn');
-if(bClean)bClean.onclick=async()=>{if(confirm('¿Borrar todos los datos y empezar de nuevo?')){await clearDraft();form.reset();progress();showNotice('✓ Formulario limpiado','ok')}};
-
-const bPreview=document.getElementById('previewBtn');
-if(bPreview)bPreview.onclick=()=>{
- const d=snap();
- let txt='📋 RESUMEN DEL BRIEFING\n\n';
- Object.entries(d).forEach(([k,v])=>{
-  if(v&&String(v).trim()){
-   txt+=k.toUpperCase()+': '+(Array.isArray(v)?v.join(', '):String(v))+'\n';
-  }
- });
- alert(txt);
-};
-
-const newBtn=document.getElementById('newBtn');
-if(newBtn)newBtn.onclick=async()=>{if(confirm('¿Borrar el borrador y empezar de nuevo?')){await clearDraft();form.reset();progress()}};
-const mc=document.getElementById('modalContinue'), mn=document.getElementById('modalNew');
-if(mc)mc.onclick=()=>document.getElementById('modal').classList.remove('show');
-if(mn)mn.onclick=async()=>{await clearDraft();form.reset();document.getElementById('modal').classList.remove('show');progress()};
-
-async function downloadPDF(){
- const d=snap();
- try{
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF();
-  let y=20;
-  doc.setFontSize(14);
-  doc.text('ZomIA Briefing Comercial',20,y);
-  y+=12;
-  doc.setFontSize(10);
-  doc.setTextColor(100,100,100);
-  doc.text('Fecha: '+new Date().toLocaleDateString('es-ES'),20,y);
-  y+=10;
-  doc.setTextColor(50,50,50);
-  doc.setFontSize(10);
-  Object.entries(d).forEach(([k,v])=>{
-   if(v&&String(v).trim()){
-    const val=Array.isArray(v)?v.join(', '):String(v);
-    const txt=doc.splitTextToSize(k+': '+val,170);
-    txt.forEach(line=>{
-     if(y>270){doc.addPage();y=20}
-     doc.text(line,20,y);
-     y+=5
-    });
-    y+=3
-   }
-  });
-  const emp=(d.empresa||'briefing').slice(0,20);
-  doc.save('ZomIA_Briefing_'+emp+'_'+Date.now()+'.pdf');
- }catch(e){console.error(e);}
-}
-
-form.addEventListener('submit',async e=>{
- e.preventDefault(); await save();
- if(!form.reportValidity())return;
- if(!SERVER_ENDPOINT){
-   showNotice('<b>El formulario está listo, pero aún falta conectar el destino de recepción.</b><br>Tus datos siguen guardados y no se han perdido.','err'); return;
- }
- try{
-   showNotice('Enviando a Google Sheets...','');
-   const r=await fetch(SERVER_ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(snap())});
-   if(!r.ok)throw Error('HTTP '+r.status);
-   showNotice('✅ Enviado a Google Sheets<br>Descargando PDF...','ok');
-   await new Promise(res=>setTimeout(res,1000));
-   await downloadPDF();
-   await clearDraft();form.reset();progress();
-   showNotice('✅ Completado - PDF descargado + Sheets actualizado','ok');
- }catch(err){
-   showNotice('<b>❌ Error al enviar</b><br>Tus datos siguen guardados. Puedes volver a intentarlo.','err');
- }
-});
-window.addEventListener('pagehide',()=>{if(meaningful(snap()))lsPut(snap())});
-window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
-restore();progress();
-</script>
-</body>
-</html>
