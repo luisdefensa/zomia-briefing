@@ -428,12 +428,12 @@ form.addEventListener('submit',async e=>{
 
   showNotice('✅ Enviado a Google Sheets<br>Descargando PDF...','ok');
   const pdfOk=await downloadPDF();
-  if(!pdfOk)throw Error('Los datos se guardaron en Google Sheets, pero no se pudo generar el PDF. Tus datos siguen guardados.');
+  if(!pdfOk)throw Error('Los datos se guardaron, pero no se pudo generar el PDF. Tus datos siguen guardados.');
 
   await clearDraft();
   form.reset();
   progress();
-  showNotice('✅ Completado · Google Sheets actualizado + PDF descargado','ok');
+  showNotice('✅ Completado · actualizado + PDF descargado','ok');
  }catch(err){
   console.error('Error enviando:',err);
   await save();
