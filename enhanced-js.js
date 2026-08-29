@@ -1,5 +1,5 @@
 const DB='zomiaBriefingDB', STORE='drafts', KEY='briefing-v2';
-const SERVER_ENDPOINT='https://script.google.com/macros/s/AKfycbxpbgVpFp-WSk5g4d6QWGl420QkKjSsmSnPk-ZyzWSxwPJHrE7_KZMjpBd1-L5Ptm0H/exec';
+const SERVER_ENDPOINT='https://script.google.com/macros/s/AKfycby7dnHySHpA8_5isenylgYoEB-sT64H0vSiCU0vixg_fUY36MAQT1Q9Z_2wbg5rphsS/exec';
 const form=document.getElementById('briefing');
 const bar=document.getElementById('bar'), pct=document.getElementById('pct');
 const status=document.getElementById('draftText'), notice=document.getElementById('success');
