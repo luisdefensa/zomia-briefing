@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050b16">
+<title>ZomIA · Briefing comercial</title>
+<meta name="description" content="Briefing comercial ZomIA para preparar una propuesta de captación profesional.">
+<style>
+:root{
+  --bg:#040914; --panel:#0a1220; --panel2:#0d1728; --line:#1b2b42;
+  --text:#f4f8ff; --muted:#91a1b8; --blue:#2da8ff; --cyan:#71e5ff;
+  --ok:#62e6ae; --danger:#ff7887; --radius:20px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--text); background:
+  radial-gradient(circle at 75% 8%, rgba(25,113,190,.22), transparent 30%),
+  radial-gradient(circle at 10% 35%, rgba(0,175,255,.08), transparent 26%),
+  var(--bg);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:42px 42px;
+}
+a{color:inherit}
+.wrap{width:min(980px,calc(100% - 32px));margin:auto}
+.hero{padding:30px 0 28px}
+.brand{
+  display:flex;align-items:center;gap:12px;margin-bottom:28px;font-weight:700;
+  letter-spacing:.02em
+}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan)}
+.logo-card{
+  overflow:hidden;border:1px solid #203752;border-radius:26px;background:#020711;
+  box-shadow:0 25px 70px rgba(0,0,0,.35),0 0 50px rgba(26,154,255,.08);
+}
+.logo-card img{display:block;width:100%;height:210px;object-fit:cover;object-position:center 48%}
+.hero-copy{padding:28px 4px 8px}
+.kicker{font-size:12px;text-transform:uppercase;letter-spacing:.18em;color:var(--cyan);font-weight:800}
+h1{font-size:clamp(31px,5vw,54px);line-height:1.02;margin:10px 0 14px;letter-spacing:-.035em}
+.lead{font-size:clamp(16px,2.4vw,20px);line-height:1.55;color:#b6c3d5;max-width:760px;margin:0}
+.process{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:28px 0 4px
+}
+.step{padding:15px 14px;border:1px solid var(--line);border-radius:15px;background:rgba(10,18,32,.72)}
+.step b{display:block;font-size:13px}.step span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+.form-shell{margin:22px 0 60px;border:1px solid #1a2b41;border-radius:28px;background:rgba(8,15,27,.92);box-shadow:0 30px 90px rgba(0,0,0,.3);overflow:hidden}
+.form-head{padding:24px 24px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:20px;align-items:end}
+.form-head h2{margin:0;font-size:22px}.form-head p{margin:7px 0 0;color:var(--muted);font-size:14px}
+.progress-wrap{min-width:190px}.progress-label{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-bottom:7px}
+.progress{height:7px;border-radius:99px;background:#111d2e;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .25s}
+form{padding:24px}
+.section{padding:4px 0 28px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+.section:last-of-type{border-bottom:0;margin-bottom:0}
+.section-title{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
+.num{width:29px;height:29px;display:grid;place-items:center;border:1px solid #27527a;border-radius:9px;color:var(--cyan);font-size:12px;font-weight:800;flex:none}
+.section h3{margin:1px 0 4px;font-size:17px}.section-desc{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:#dbe7f5}
+.required{color:var(--cyan)}
+input,textarea,select{
+  width:100%;border:1px solid #24374f;background:#07111f;color:var(--text);
+  border-radius:12px;padding:13px 14px;font:inherit;font-size:15px;outline:none;
+  transition:.18s;border-color:#20344d
+}
+input:focus,textarea:focus,select:focus{border-color:#3caeff;box-shadow:0 0 0 3px rgba(45,168,255,.11)}
+textarea{min-height:105px;resize:vertical}
+.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.choice{position:relative}.choice input{position:absolute;opacity:0;pointer-events:none}
+.choice label{
+  margin:0;padding:12px 13px;border:1px solid #20344d;background:#07111f;border-radius:12px;
+  color:#b9c7d8;font-weight:600;cursor:pointer;line-height:1.25
+}
+.choice input:checked+label{border-color:#2f9ee8;background:rgba(45,168,255,.10);color:#fff;box-shadow:inset 0 0 0 1px rgba(113,229,255,.18)}
+.hint{color:#7789a0;font-size:11px;margin-top:6px}
+.actions{padding-top:4px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+button{
+  border:0;border-radius:13px;padding:14px 18px;font:inherit;font-weight:800;cursor:pointer
+}
+.primary{color:#03101b;background:linear-gradient(135deg,#48b8ff,#7be8ff);box-shadow:0 10px 28px rgba(45,168,255,.2)}
+.secondary{color:#d9e8f8;background:#0c1727;border:1px solid #243b55}
+.status{font-size:12px;color:var(--muted)}
+.notice{display:none;margin-top:20px;border:1px solid rgba(98,230,174,.28);background:rgba(98,230,174,.06);border-radius:15px;padding:15px;color:#c9f7e4}
+.notice.err{border-color:rgba(255,120,135,.28);background:rgba(255,120,135,.06);color:#ffb0b7}
+footer{padding:0 0 50px;color:#61728a;font-size:11px;text-align:center}
+@media(max-width:700px){
+  .wrap{width:min(100% - 20px,980px)} .hero{padding-top:18px}
+  .logo-card img{height:150px}
+  .process{grid-template-columns:repeat(2,1fr)}
+  .form-head{display:block}.progress-wrap{margin-top:16px}
+  form{padding:18px}.grid,.choice-grid{grid-template-columns:1fr}
+  .form-shell{border-radius:22px}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <div class="brand"><div class="brand-dot"></div><span>ZomIA</span></div>
+    <div class="logo-card"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="Logo"></div>
+    <div class="hero-copy">
+      <div class="kicker">Preparación comercial</div>
+      <h1>Briefing Comercial</h1>
+      <p class="lead">Comparte la información sobre tu negocio para que podamos preparar una propuesta comercial de calidad.</p>
+    </div>
+    <div class="process">
+      <div class="step"><b>01</b><span>Rellena el formulario</span></div>
+      <div class="step"><b>02</b><span>Revisa los datos</span></div>
+      <div class="step"><b>03</b><span>Envía a Google Sheets</span></div>
+      <div class="step"><b>04</b><span>Recibe PDF</span></div>
+    </div>
+  </section>
+
+  <section class="form-shell">
+    <div class="form-head">
+      <div>
+        <h2>Formulario</h2>
+        <p>7 secciones · ~15 minutos</p>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Progreso</span><span id="pct">0%</span></div>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+      </div>
+    </div>
+    <form id="briefing">
+      <section class="section">
+        <div class="section-title"><div class="num">01</div><div><h3>Datos de la empresa</h3><p class="section-desc">Información básica de contacto.</p></div></div>
+        <div class="grid">
+          <div class="field"><label>Empresa <span class="required">*</span></label><input type="text" name="empresa" required></div>
+          <div class="field"><label>Contacto <span class="required">*</span></label><input type="text" name="contacto" required></div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>Teléfono <span class="required">*</span></label><input type="tel" name="telefono" required></div>
+          <div class="field"><label>Email <span class="required">*</span></label><input type="email" name="email" required></div>
+        </div>
+        <div class="field"><label>Localidad <span class="required">*</span></label><input type="text" name="localidad" required></div>
+        <div class="field"><label>Web / Redes sociales</label><input type="text" name="web" placeholder="URL o usuario"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="num">02</div><div><h3>¿Qué servicios realizáis?</h3><p class="section-desc">Selecciona todas las que apliquen.</p></div></div>
+        <div class="choice-grid">
+          <div class="choice"><input type="checkbox" name="servicios" value="Reparación" id="s1"><label for="s1">Reparación</label></div>
+          <div class="choice"><input type="checkbox" name="servicios" value="Instalación" id="s2"><label for="s2">Instalación</label></div>
+          <div class="choice"><input type="checkbox" name="servicios" value="Mantenimiento" id="s3"><label for="s3">Mantenimiento</label></div>
+          <div class="choice"><input type="checkbox" name="servicios" value="Consultoría" id="s4"><label for="s4">Consultoría</label></div>
+          <div class="choice"><input type="checkbox" name="servicios" value="Venta de equipos" id="s5"><label for="s5">Venta de equipos</label></div>
+          <div class="choice"><input type="checkbox" name="servicios" value="Asesoramiento" id="s6"><label for="s6">Asesoramiento</label></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="num">03</div><div><h3>¿A qué clientes atendéis?</h3><p class="section-desc">Selecciona todos los que apliquen.</p></div></div>
+        <div class="choice-grid">
+          <div class="choice"><input type="checkbox" name="clientes" value="Particulares" id="c1"><label for="c1">Particulares</label></div>
+          <div class="choice"><input type="checkbox" name="clientes" value="Pequeñas empresas" id="c2"><label for="c2">Pequeñas empresas</label></div>
+          <div class="choice"><input type="checkbox" name="clientes" value="Medianas empresas" id="c3"><label for="c3">Medianas empresas</label></div>
+          <div class="choice"><input type="checkbox" name="clientes" value="Grandes corporaciones" id="c4"><label for="c4">Grandes corporaciones</label></div>
+          <div class="choice"><input type="checkbox" name="clientes" value="Administraciones públicas" id="c5"><label for="c5">Administraciones públicas</label></div>
+          <div class="choice"><input type="checkbox" name="clientes" value="Otros" id="c6"><label for="c6">Otros</label></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="num">04</div><div><h3>Zona y modalidad de trabajo</h3><p class="section-desc">¿Dónde operáis?</p></div></div>
+        <div class="field"><label>Zona donde trabajáis</label><input type="text" name="zona_trabajo" placeholder="ej: Madrid, Barcelona, etc."></div>
+        <div class="field"><label>Zona donde quieres que busquemos leads</label><input type="text" name="zona_busqueda" placeholder="ej: Toda España, Europa, etc."></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="num">05</div><div><h3>Especialización y diferenciación</h3><p class="section-desc">¿Qué os hace diferentes?</p></div></div>
+        <div class="field"><label>Marcas / Equipos con los que trabajáis</label><textarea name="marcas"></textarea></div>
+        <div class="field"><label>¿Cuáles son vuestros trabajos más frecuentes?</label><textarea name="frecuentes"></textarea></div>
+        <div class="field"><label>¿Cuál es vuestra diferenciación en el mercado?</label><textarea name="diferencia"></textarea></div>
+        <div class="field"><label>¿Qué garantías ofrecéis?</label><textarea name="garantia"></textarea></div>
+        <div class="field"><label>¿Cuál es vuestro cliente ideal?</label><textarea name="cliente_ideal"></textarea></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="num">06</div><div><h3>Objetivo comercial</h3><p class="section-desc">¿Qué queremos conseguir?</p></div></div>
+        <div class="choice-grid">
+          <div class="choice"><input type="checkbox" name="objetivo" value="Más presupuestos" id="o1"><label for="o1">Más presupuestos</label></div>
+          <div class="choice"><input type="checkbox" name="objetivo" value="Mayor facturación" id="o2"><label for="o2">Mayor facturación</label></div>
+          <div class="choice"><input type="checkbox" name="objetivo" value="Posicionar marca" id="o3"><label for="o3">Posicionar marca</label></div>
+          <div class="choice"><input type="checkbox" name="objetivo" value="Expandir a nuevas zonas" id="o4"><label for="o4">Expandir a nuevas zonas</label></div>
+          <div class="choice"><input type="checkbox" name="objetivo" value="Mejorar imagen" id="o5"><label for="o5">Mejorar imagen</label></div>
+          <div class="choice"><input type="checkbox" name="objetivo" value="Diversificar servicios" id="o6"><label for="o6">Diversificar servicios</label></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><div class="num">07</div><div><h3>Material y observaciones</h3><p class="section-desc">Cualquier detalle que nos ayude a representar correctamente vuestro trabajo.</p></div></div>
+        <div class="field"><label>¿Hay algún servicio que quieras promocionar especialmente?</label><textarea name="promocionar"></textarea></div>
+        <div class="field"><label>Observaciones adicionales</label><textarea name="observaciones"></textarea></div>
+        <div class="field"><label>Enlaces a fotos, catálogo, dossier, Drive, etc.</label><input type="text" name="material" placeholder="Puedes pegar aquí enlaces a material existente."><div class="hint">Para una primera versión hemos dejado los archivos fuera del formulario; así no tienes que lidiar con permisos de almacenamiento.</div></div>
+      </section>
+
+      <div class="actions">
+        <button class="secondary" type="button" id="cleanBtn">🗑️ Limpiar</button>
+        <button class="secondary" type="button" id="previewBtn">👁️ Vista previa</button>
+        <button class="primary" type="submit">📤 Enviar → Sheets + PDF</button>
+        <span class="status">Se enviará a Google Sheets y se descargará un PDF automáticamente.</span>
+      </div>
+      <div class="notice" id="notice"></div>
+    </form>
+  </section>
+  <footer>ZomIA · Preparación comercial · Este formulario recopila la información necesaria para elaborar la propuesta.</footer>
+</main>
+
+<script>
+const DB='zomiaBriefingDB', STORE='drafts', KEY='briefing-v2';
+const SERVER_ENDPOINT='https://script.google.com/macros/s/AKfycbz7QDcZi8pA19YO0m-jh-5mBS2Pe2zCFjDwioAEJQoxAxo9aWz0rO2NM12U6PV5pSGt/exec';
+const form=document.getElementById('briefing');
+const bar=document.getElementById('bar'), pct=document.getElementById('pct');
+const noticeEl=document.getElementById('notice');
+let timer=null, dirty=false;
+
+function openDB(){return new Promise((ok,bad)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>ok(r.result);r.onerror=()=>bad(r.error)})}
+async function idbPut(data){try{const db=await openDB();return new Promise((ok,bad)=>{const t=db.transaction(STORE,'readwrite');t.objectStore(STORE).put({data,at:Date.now()},KEY);t.oncomplete=ok;t.onerror=()=>bad(t.error)})}catch(e){}}
+async function idbGet(){try{const db=await openDB();return new Promise((ok,bad)=>{const r=db.transaction(STORE).objectStore(STORE).get(KEY);r.onsuccess=()=>ok(r.result||null);r.onerror=()=>bad(r.error)})}catch(e){return null}}
+async function idbDel(){try{const db=await openDB();return new Promise(ok=>{const t=db.transaction(STORE,'readwrite');t.objectStore(STORE).delete(KEY);t.oncomplete=ok})}catch(e){}}
+function lsPut(d){try{localStorage.setItem(KEY,JSON.stringify({data:d,at:Date.now()}))}catch(e){}}
+function lsGet(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
+function lsDel(){try{localStorage.removeItem(KEY)}catch(e){}}
+
+function snap(){
+ const d={};
+ [...form.elements].forEach(x=>{if(!x.name)return;if(x.type==='checkbox'){d[x.name]??=[];if(x.checked)d[x.name].push(x.value)}else d[x.name]=x.value});
+ return d;
+}
+function meaningful(d){return d&&Object.values(d).some(v=>Array.isArray(v)?v.length:String(v||'').trim())}
+function apply(d){
+ if(!d)return;
+ [...form.elements].forEach(x=>{if(!x.name)return;if(x.type==='checkbox')x.checked=Array.isArray(d[x.name])&&d[x.name].includes(x.value);else if(d[x.name]!==undefined)x.value=d[x.name]});
+ progress();
+}
+async function save(){
+ const d=snap(); if(!meaningful(d))return;
+ await idbPut(d); lsPut(d); dirty=true;
+}
+function queue(){clearTimeout(timer);timer=setTimeout(save,300);progress()}
+function progress(){
+ const req=[...form.querySelectorAll('[required]')], a=req.filter(x=>x.value.trim()).length/Math.max(1,req.length);
+ const checks=form.querySelectorAll('input[type=checkbox]:checked').length;
+ const p=Math.min(100,Math.round(a*70+(checks?30:0)));
+ bar.style.width=p+'%';pct.textContent=p+'%';
+}
+async function clearDraft(){await idbDel();lsDel();dirty=false}
+async function restore(){
+ const a=await idbGet(), b=lsGet(), best=a&&b?(a.at>=b.at?a:b):(a||b);
+ if(best&&meaningful(best.data)){
+   apply(best.data);
+ }
+}
+function showNotice(msg,ok=false){
+ if(!noticeEl)return;
+ noticeEl.style.display='block';noticeEl.className='notice '+(ok?'ok':'err');noticeEl.innerHTML=msg;
+}
+form.addEventListener('input',queue);form.addEventListener('change',queue);
+
+const bClean=document.getElementById('cleanBtn');
+if(bClean)bClean.onclick=async()=>{if(confirm('¿Borrar todos los datos y empezar de nuevo?')){await clearDraft();form.reset();progress();showNotice('✓ Formulario limpiado','ok')}};
+
+const bPreview=document.getElementById('previewBtn');
+if(bPreview)bPreview.onclick=()=>{
+ const d=snap();
+ let txt='📋 RESUMEN DEL BRIEFING\n\n';
+ Object.entries(d).forEach(([k,v])=>{
+  if(v&&String(v).trim()){
+   txt+=k.toUpperCase()+': '+(Array.isArray(v)?v.join(', '):String(v))+'\n';
+  }
+ });
+ alert(txt);
+};
+
+async function downloadPDF(){
+ const d=snap();
+ try{
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  let y=20;
+  doc.setFontSize(14);
+  doc.text('ZomIA Briefing Comercial',20,y);
+  y+=12;
+  doc.setFontSize(10);
+  doc.setTextColor(100,100,100);
+  doc.text('Fecha: '+new Date().toLocaleDateString('es-ES'),20,y);
+  y+=10;
+  doc.setTextColor(50,50,50);
+  doc.setFontSize(10);
+  Object.entries(d).forEach(([k,v])=>{
+   if(v&&String(v).trim()){
+    const val=Array.isArray(v)?v.join(', '):String(v);
+    const txt=doc.splitTextToSize(k+': '+val,170);
+    txt.forEach(line=>{
+     if(y>270){doc.addPage();y=20}
+     doc.text(line,20,y);
+     y+=5
+    });
+    y+=3
+   }
+  });
+  const emp=(d.empresa||'briefing').slice(0,20);
+  doc.save('ZomIA_Briefing_'+emp+'_'+Date.now()+'.pdf');
+ }catch(e){console.error(e);}
+}
+
+form.addEventListener('submit',async e=>{
+ e.preventDefault(); await save();
+ if(!form.reportValidity())return;
+ try{
+   showNotice('Enviando a Google Sheets...','');
+   const d=snap();
+   d.submissionId=Math.random().toString(36).substring(7);
+   
+   const formData=new FormData();
+   Object.entries(d).forEach(([k,v])=>{
+    formData.append(k,Array.isArray(v)?v.join(', '):String(v));
+   });
+   
+   const r=await fetch(SERVER_ENDPOINT,{method:'POST',body:formData});
+   if(!r.ok)throw Error('HTTP '+r.status);
+   showNotice('✅ Enviado a Google Sheets<br>Descargando PDF...','ok');
+   await new Promise(res=>setTimeout(res,1000));
+   await downloadPDF();
+   await clearDraft();form.reset();progress();
+   showNotice('✅ Completado - PDF descargado + Sheets actualizado','ok');
+ }catch(err){
+   console.error('Error enviando:', err);
+   showNotice('<b>❌ Error al enviar</b><br>'+err.message+'<br>Tus datos siguen guardados. Puedes volver a intentarlo.','err');
+ }
+});
+window.addEventListener('pagehide',()=>{if(meaningful(snap()))lsPut(snap())});
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+restore();progress();
+</script>
+</body>
+</html>
