@@ -3,7 +3,7 @@
 ## 🚀 Acceso Rápido
 
 **📱 Abre desde tu móvil o escritorio:**  
-👉 **https://luisdefensa.github.io/zomia-briefing/**
+👉 **https://briefing.zomia.es/**
 
 ---
 
